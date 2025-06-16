@@ -1,171 +1,113 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
-#include <unistd.h>
+#include <string.h>
 
 typedef struct {
     char nome[50];
-    int forca;
-    int velocidade;
-    int agilidade;
-    char grupo;
+    int ataque;
+    int defesa;
+    int magia;
 } Carta;
 
-void limparTela() {
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
+void preencherBaralho(Carta baralho[], int tamanho) {
+    strcpy(baralho[0].nome, "Dragao Vermelho");
+    baralho[0].ataque = 95;
+    baralho[0].defesa = 80;
+    baralho[0].magia = 70;
+
+    strcpy(baralho[1].nome, "Gigante de Pedra");
+    baralho[1].ataque = 80;
+    baralho[1].defesa = 98;
+    baralho[1].magia = 30;
+
+    strcpy(baralho[2].nome, "Mago Eletrico");
+    baralho[2].ataque = 75;
+    baralho[2].defesa = 60;
+    baralho[2].magia = 99;
+
+    strcpy(baralho[3].nome, "Elfo Arqueiro");
+    baralho[3].ataque = 88;
+    baralho[3].defesa = 70;
+    baralho[3].magia = 65;
+    
+    strcpy(baralho[4].nome, "Goblin Ladrao");
+    baralho[4].ataque = 60;
+    baralho[4].defesa = 40;
+    baralho[4].magia = 20;
+
+    strcpy(baralho[5].nome, "Hidra de Lerna");
+    baralho[5].ataque = 92;
+    baralho[5].defesa = 85;
+    baralho[5].magia = 50;
+}
+
+void mostrarCarta(Carta carta) {
+    printf("\nSua carta:\n");
+    printf("Nome: %s\n", carta.nome);
+    printf("1. Ataque: %d\n", carta.ataque);
+    printf("2. Defesa: %d\n", carta.defesa);
+    printf("3. Magia: %d\n", carta.magia);
 }
 
 int main() {
-    Carta baralho[20] = {
-        {"Superman", 95, 90, 85, 'A'},
-        {"Flash", 70, 100, 95, 'A'},
-        {"Batman", 85, 70, 90, 'A'},
-        {"Mulher-Maravilha", 90, 80, 88, 'A'},
-        {"Coringa", 75, 65, 80, 'A'},
-        {"Lex Luthor", 80, 60, 70, 'A'},
-        {"Homem-Aranha", 88, 85, 98, 'B'},
-        {"Hulk", 98, 60, 50, 'B'},
-        {"Capitao America", 86, 75, 92, 'B'},
-        {"Thanos", 99, 50, 60, 'B'},
-        {"Homem de Ferro", 92, 88, 85, 'B'},
-        {"Loki", 82, 70, 88, 'B'},
-        {"Goku", 97, 96, 94, 'C'},
-        {"Vegeta", 96, 95, 93, 'C'},
-        {"Freeza", 94, 90, 89, 'C'},
-        {"Cell", 93, 89, 91, 'C'},
-        {"Majin Boo", 95, 85, 80, 'C'},
-        {"Pikachu", 70, 80, 90, 'D'},
-        {"Charizard", 85, 78, 82, 'D'},
-        {"Mewtwo", 92, 90, 88, 'D'}
-    };
-    baralho[9].grupo = 'S'; // Thanos é a Super Trunfo
-
+    Carta baralho[6];
+    Carta cartaJogador, cartaComputador;
+    int escolha, indiceJogador, indiceComputador;
+    
     srand(time(NULL));
-    for (int i = 19; i > 0; i--) {
-        int j = rand() % (i + 1);
-        Carta temp = baralho[i];
-        baralho[i] = baralho[j];
-        baralho[j] = temp;
-    }
 
-    Carta maoJogador[20], maoComputador[20];
-    int nJogador = 10, nComputador = 10;
+    preencherBaralho(baralho, 6);
+
+    indiceJogador = rand() % 6;
+    cartaJogador = baralho[indiceJogador];
+
+    do {
+        indiceComputador = rand() % 6;
+    } while (indiceComputador == indiceJogador);
+    cartaComputador = baralho[indiceComputador];
+
+    printf("--- Super Trunfo Batalha ---\n");
     
-    for(int i = 0; i < 10; i++) {
-        maoJogador[i] = baralho[i];
-        maoComputador[i] = baralho[i + 10];
-    }
+    mostrarCarta(cartaJogador);
     
-    int rodada = 1;
-    int escolha;
-    int turnoDoJogador = 1;
-
-    while (nJogador > 0 && nComputador > 0) {
-        limparTela();
-        printf("--- RODADA %d ---\n", rodada);
-        printf("PLACAR: Jogador (%d cartas) vs Computador (%d cartas)\n", nJogador, nComputador);
-        printf("--------------------------------------------------\n");
-
-        Carta cartaJogador = maoJogador[0];
-        Carta cartaComputador = maoComputador[0];
-
-        if(turnoDoJogador) {
-            printf("Sua carta: %s [Grupo: %c]\n", cartaJogador.nome, cartaJogador.grupo);
-            printf("1. Forca: %d\n", cartaJogador.forca);
-            printf("2. Velocidade: %d\n", cartaJogador.velocidade);
-            printf("3. Agilidade: %d\n", cartaJogador.agilidade);
-            printf("Escolha um atributo (1-3): ");
-            scanf("%d", &escolha);
-            while (getchar() != '\n');
-        } else {
-            printf("O computador esta escolhendo...\n");
-            escolha = (rand() % 3) + 1;
-            sleep(2);
-        }
-
-        printf("\n-- COMPARACAO --\n");
-        printf("Sua carta: %s (%s: %d)\n", cartaJogador.nome,
-               (escolha == 1) ? "Forca" : (escolha == 2) ? "Velocidade" : "Agilidade",
-               (escolha == 1) ? cartaJogador.forca : (escolha == 2) ? cartaJogador.velocidade : cartaJogador.agilidade);
-        printf("Carta do Computador: %s (%s: %d)\n", cartaComputador.nome,
-               (escolha == 1) ? "Forca" : (escolha == 2) ? "Velocidade" : "Agilidade",
-               (escolha == 1) ? cartaComputador.forca : (escolha == 2) ? cartaComputador.velocidade : cartaComputador.agilidade);
-        printf("----------------\n");
-
-        int jogadorVenceu = 0;
-        int empate = 0;
-        
-        if (cartaJogador.grupo == 'S' && cartaComputador.grupo != 'S') {
-            jogadorVenceu = 1;
-        } else if (cartaComputador.grupo == 'S' && cartaJogador.grupo != 'S') {
-            jogadorVenceu = 0;
-        } else if (cartaJogador.grupo == cartaComputador.grupo || cartaJogador.grupo == 'S' || cartaComputador.grupo == 'S') {
-            int atrJogador = (escolha == 1) ? cartaJogador.forca : (escolha == 2) ? cartaJogador.velocidade : cartaJogador.agilidade;
-            int atrComputador = (escolha == 1) ? cartaComputador.forca : (escolha == 2) ? cartaComputador.velocidade : cartaComputador.agilidade;
-            if (atrJogador > atrComputador) {
-                jogadorVenceu = 1;
-            } else if (atrJogador < atrComputador) {
-                jogadorVenceu = 0;
-            } else {
-                empate = 1;
-            }
-        } else if (cartaJogador.grupo == 'A' && cartaComputador.grupo == 'B') {
-            jogadorVenceu = 1;
-        } else if (cartaJogador.grupo == 'B' && cartaComputador.grupo == 'C') {
-            jogadorVenceu = 1;
-        } else if (cartaJogador.grupo == 'C' && cartaComputador.grupo == 'D') {
-            jogadorVenceu = 1;
-        } else if (cartaJogador.grupo == 'D' && cartaComputador.grupo == 'A') {
-            jogadorVenceu = 1;
-        } else {
-            jogadorVenceu = 0;
-        }
-
-        if (empate) {
-            printf("Resultado: EMPATE!\n");
-            turnoDoJogador = !turnoDoJogador; 
-            
-            maoJogador[nJogador] = cartaJogador;
-            maoComputador[nComputador] = cartaComputador;
-        } else if (jogadorVenceu) {
-            printf("Resultado: VOCE VENCEU A RODADA!\n");
-            turnoDoJogador = 1;
-            
-            maoJogador[nJogador] = cartaJogador;
-            maoJogador[nJogador + 1] = cartaComputador;
-            nJogador++;
-            nComputador--;
-        } else {
-            printf("Resultado: O COMPUTADOR VENCEU A RODADA!\n");
-            turnoDoJogador = 0;
-
-            maoComputador[nComputador] = cartaComputador;
-            maoComputador[nComputador + 1] = cartaJogador;
-            nComputador++;
-            nJogador--;
-        }
-        
-        for (int i = 0; i < nJogador; i++) maoJogador[i] = maoJogador[i+1];
-        for (int i = 0; i < nComputador; i++) maoComputador[i] = maoComputador[i+1];
-
-        printf("\nPressione Enter para continuar...");
-        while (getchar() != '\n');
-        rodada++;
-    }
+    printf("\nEscolha um atributo (1-3): ");
+    scanf("%d", &escolha);
     
-    limparTela();
-    printf("========== FIM DE JOGO ==========\n");
-    if (nJogador > 0) {
-        printf("PARABENS! VOCE VENCEU O JOGO!\n");
+    printf("\nCarta do Computador:\n");
+    printf("Nome: %s\n", cartaComputador.nome);
+    printf("Ataque: %d\n", cartaComputador.ataque);
+    printf("Defesa: %d\n", cartaComputador.defesa);
+    printf("Magia: %d\n", cartaComputador.magia);
+
+    int valorJogador, valorComputador;
+
+    if (escolha == 1) {
+        valorJogador = cartaJogador.ataque;
+        valorComputador = cartaComputador.ataque;
+        printf("\nVoce escolheu Ataque!\n");
+    } else if (escolha == 2) {
+        valorJogador = cartaJogador.defesa;
+        valorComputador = cartaComputador.defesa;
+        printf("\nVoce escolheu Defesa!\n");
+    } else if (escolha == 3) {
+        valorJogador = cartaJogador.magia;
+        valorComputador = cartaComputador.magia;
+        printf("\nVoce escolheu Magia!\n");
     } else {
-        printf("QUE PENA! O COMPUTADOR VENCEU.\n");
+        printf("\nOpcao invalida. Voce perdeu a rodada.\n");
+        return 1;
     }
-    printf("=================================\n");
+    
+    printf("Seu valor: %d vs Valor do Computador: %d\n", valorJogador, valorComputador);
+
+    if (valorJogador > valorComputador) {
+        printf("\n*** Voce venceu! ***\n");
+    } else if (valorJogador < valorComputador) {
+        printf("\n--- Voce perdeu! ---\n");
+    } else {
+        printf("\n=== Empate! ===\n");
+    }
 
     return 0;
 }
